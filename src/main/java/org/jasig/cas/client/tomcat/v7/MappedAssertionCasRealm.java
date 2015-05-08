@@ -30,6 +30,8 @@ public class MappedAssertionCasRealm extends AssertionCasRealm {
     private final class SecuritySetup {
         SecurityConstraint[] scs = null;
 
+        // Construct a new SecurityCollection, that will
+        // override the one given in the web.xml
         void configure(Context ctx) {
             scs = new SecurityConstraint[] {new SecurityConstraint()};
             SecurityCollection sc = new SecurityCollection();
@@ -62,7 +64,7 @@ public class MappedAssertionCasRealm extends AssertionCasRealm {
         prop.load(new FileReader(propFile));
         for(Entry<Object, Object> e: prop.entrySet()) {
             String key = e.getKey().toString();
-            //If property is group.*, it maps the group name
+            //If property is role.*, it maps the group name
             if(key.startsWith("role.")) {
                 String servletGroup = key.replaceFirst("^role\\.", "");
                 String casGroup = e.getValue().toString();
@@ -127,9 +129,12 @@ public class MappedAssertionCasRealm extends AssertionCasRealm {
             HttpSession sess = arg0.getSession();
             if(sess != null) {
                 synchronized(sess) {
-                    if(p != null && p instanceof AttributePrincipal && sess.getAttribute("CAS") == null) {
+                    // Only resolve mapping if Principal is a CAS generated principal
+                    // It also uses the __CAS__ as a flag that mapping has already been done
+                    // So it's not needed again.
+                    if(p != null && p instanceof AttributePrincipal && sess.getAttribute("__CAS__") == null) {
                         AttributePrincipal ap = (AttributePrincipal) p;
-                        logger.debug("mapping attribute found: " + ap.getAttributes());
+                        logger.debug("mapping attribute found: {}", ap.getAttributes());
                         for(Entry<String, Object> e: ap.getAttributes().entrySet()) {
                             String attribute = e.getKey();
                             if(attributeMapping.containsKey(attribute)) {
@@ -137,7 +142,7 @@ public class MappedAssertionCasRealm extends AssertionCasRealm {
                             }
                             sess.setAttribute(attribute, e.getValue());
                         }
-                        sess.setAttribute("CAS", Boolean.TRUE);
+                        sess.setAttribute("__CAS__", Boolean.TRUE);
                     }            
                 }            
             }
