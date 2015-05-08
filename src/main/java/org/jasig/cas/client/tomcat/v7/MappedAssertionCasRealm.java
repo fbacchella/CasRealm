@@ -63,8 +63,8 @@ public class MappedAssertionCasRealm extends AssertionCasRealm {
         for(Entry<Object, Object> e: prop.entrySet()) {
             String key = e.getKey().toString();
             //If property is group.*, it maps the group name
-            if(key.startsWith("group.")) {
-                String servletGroup = key.replaceFirst("^group\\.", "");
+            if(key.startsWith("role.")) {
+                String servletGroup = key.replaceFirst("^role\\.", "");
                 String casGroup = e.getValue().toString();
                 if(! roleMapping1.containsKey(casGroup)) {
                     roleMapping1.put(casGroup, new HashSet<String>());
