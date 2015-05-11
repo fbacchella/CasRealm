@@ -57,7 +57,7 @@ public class MappedAssertionCasRealm extends AssertionCasRealm {
     //Map a CAS attribute to a session attribute
     private final Map<String, String> attributeMapping = new HashMap<>();
 
-    private boolean overrideSecurity = false;
+    private boolean overrideSecurity = true;
 
     public void setMappingProperties(String propFile) throws FileNotFoundException, IOException, InvalidNameException {
         Properties prop = new Properties();
@@ -79,7 +79,7 @@ public class MappedAssertionCasRealm extends AssertionCasRealm {
                 attributeMapping.put(casAttribute, sessionAttribute);
             }
         }
-        logger.trace("mapping is {} {}", roleMapping1, attributeMapping);
+        logger.trace("mapping is role={} attributes={}", roleMapping2, attributeMapping);
     }
 
     @Override
@@ -132,7 +132,8 @@ public class MappedAssertionCasRealm extends AssertionCasRealm {
                     // Only resolve mapping if Principal is a CAS generated principal
                     // It also uses the __CAS__ as a flag that mapping has already been done
                     // So it's not needed again.
-                    if(p != null && p instanceof AttributePrincipal && sess.getAttribute("__CAS__") == null) {
+                    // org.jasig.cas.client.validation.Assertion can't be used, it's still empty
+                    if(p != null && p instanceof AttributePrincipal && sess.getAttribute("__CAS_ATTRIBUTES_DONE__") == null) {
                         AttributePrincipal ap = (AttributePrincipal) p;
                         logger.debug("mapping attribute found: {}", ap.getAttributes());
                         for(Entry<String, Object> e: ap.getAttributes().entrySet()) {
@@ -142,7 +143,7 @@ public class MappedAssertionCasRealm extends AssertionCasRealm {
                             }
                             sess.setAttribute(attribute, e.getValue());
                         }
-                        sess.setAttribute("__CAS__", Boolean.TRUE);
+                        sess.setAttribute("__CAS_ATTRIBUTES_DONE__", Boolean.TRUE);
                     }            
                 }            
             }
