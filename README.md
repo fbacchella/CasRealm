@@ -49,6 +49,8 @@ The file format is a list of either
     role.<rolename>=CAS group
     attribute.<application attribute>=CAS attribute
 
+Only mapped attributes and roles are set, to avoid unespected name collisions.
+
 The `overrideSecurity` boolean setting can be set to `false` to only use mapping services of this realm, if
 the application is already CAS friendly.
         

@@ -89,8 +89,6 @@ public class MappedAssertionCasRealm extends AssertionCasRealm {
         for(String role: casRoles) {
             if(roleMapping1.containsKey(role)) {
                 roleList.addAll(roleMapping1.get(role));
-            } else {
-                roleList.add(role);
             }
         }
         logger.trace("roles for {} are {}", principal, roleList);
@@ -138,10 +136,11 @@ public class MappedAssertionCasRealm extends AssertionCasRealm {
                         logger.debug("mapping attribute found: {}", ap.getAttributes());
                         for(Entry<String, Object> e: ap.getAttributes().entrySet()) {
                             String attribute = e.getKey();
+                            // Only explicitely mapped attribute are kept
                             if(attributeMapping.containsKey(attribute)) {
                                 attribute = attributeMapping.get(attribute);
+                                sess.setAttribute(attribute, e.getValue());
                             }
-                            sess.setAttribute(attribute, e.getValue());
                         }
                         sess.setAttribute("__CAS_ATTRIBUTES_DONE__", Boolean.TRUE);
                     }            
