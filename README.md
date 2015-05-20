@@ -53,7 +53,13 @@ Only mapped attributes and roles are set, to avoid unespected name collisions.
 
 The `overrideSecurity` boolean setting can be set to `false` to only use mapping services of this realm, if
 the application is already CAS friendly.
-        
+
+With the options `filter` and `headerFilter`, it's possible to bypass the `overrideSecurity`. If the given
+header matches the regex given in `filter`, the permission is delegated to the default configuration. This
+must be used with care, because it can totally bypass security and should be only used when the application
+or other setting already enforce security. It allows dummy clients that can't' authenticate using CAS to keep
+using the application.
+
 Installation
 ------------
 It's a usual maven project so it's build with a `mvn package` command. It generate a `target/cas-client-tomcat-mandatoryrealm-v7-1.0-SNAPSHOT-jar-with-dependencies.jar`

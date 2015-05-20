@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import javax.naming.InvalidNameException;
 import javax.servlet.http.HttpSession;
@@ -56,6 +57,10 @@ public class MappedAssertionCasRealm extends AssertionCasRealm {
 
     //Map a CAS attribute to a session attribute
     private final Map<String, String> attributeMapping = new HashMap<>();
+
+    //Filter for direct access
+    private Pattern filter = null;
+    private String headerFilter = null;
 
     private boolean overrideSecurity = true;
 
@@ -107,22 +112,29 @@ public class MappedAssertionCasRealm extends AssertionCasRealm {
     @Override
     public SecurityConstraint[] findSecurityConstraints(final Request arg0,
             final Context arg1) {
-        if(overrideSecurity) {
-            synchronized(security) {
-                if(security.scs == null) {
-                    security.configure(arg1);
-                }          
-            }
-            return security.scs;
-        } else {
+        if(!overrideSecurity || headerFilterMatches(arg0)) {
             return super.findSecurityConstraints(arg0, arg1);
         }
+        //Default case, install security
+        synchronized(security) {
+            if(security.scs == null) {
+                security.configure(arg1);
+            }       
+        }
+        return security.scs;            
     }
 
     @Override
     public boolean hasResourcePermission(Request arg0, Response arg1,
             SecurityConstraint[] arg2, Context arg3) throws IOException {
-        if(overrideSecurity) {
+        boolean hasResourcePermission;
+        if( ! overrideSecurity || headerFilterMatches(arg0)) {
+            hasResourcePermission = super.hasResourcePermission(arg0, arg1, arg2, arg3);
+        } else {
+            hasResourcePermission = true;
+        }
+        // if hasResourcePermission, try to fill session attributes
+        if(hasResourcePermission) {
             Principal p = arg0.getPrincipal();
             HttpSession sess = arg0.getSession();
             if(sess != null) {
@@ -145,25 +157,56 @@ public class MappedAssertionCasRealm extends AssertionCasRealm {
                         sess.setAttribute("__CAS_ATTRIBUTES_DONE__", Boolean.TRUE);
                     }            
                 }            
-            }
-            return true;
-        } else {
-            return super.hasResourcePermission(arg0, arg1, arg2, arg3);
+            }            
         }
+        return hasResourcePermission;
     }
 
     @Override
     public boolean hasUserDataPermission(Request arg0, Response arg1,
             SecurityConstraint[] arg2) throws IOException {
-        if(overrideSecurity) {
-            return true;
-        } else {
+        if( overrideSecurity || headerFilterMatches(arg0)) {
             return super.hasUserDataPermission(arg0, arg1, arg2);
         }
+        return true;
+    }
+
+    /**
+     * Check if the filter header match the given regex pattern
+     * @param req
+     * @return
+     */
+    private boolean headerFilterMatches(Request req) {
+        if(filter != null && headerFilter != null) {
+            String headerValue = req.getHeader(headerFilter);
+            if(headerValue != null) {
+                return filter.matcher(headerValue).matches();
+            }
+        }
+        return false;
     }
 
     public void setOverrideSecurity(boolean overrideSecurity) {
         this.overrideSecurity = overrideSecurity;
+    }
+
+    public String getFilter() {
+        if(filter == null) {
+            return null;
+        }
+        return filter.pattern();
+    }
+
+    public void setFilter(String filter) {
+        this.filter = Pattern.compile(filter);
+    }
+
+    public String getHeaderFilter() {
+        return headerFilter;
+    }
+
+    public void setHeaderFilter(String headerFilter) {
+        this.headerFilter = headerFilter;
     }
 
 }
