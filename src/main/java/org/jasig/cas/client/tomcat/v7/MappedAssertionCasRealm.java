@@ -14,7 +14,6 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import javax.naming.InvalidNameException;
 import javax.servlet.http.HttpSession;
 
 import org.apache.catalina.Context;
@@ -64,9 +63,15 @@ public class MappedAssertionCasRealm extends AssertionCasRealm {
 
     private boolean overrideSecurity = true;
 
-    public void setMappingProperties(String propFile) throws FileNotFoundException, IOException, InvalidNameException {
+    public void setMappingProperties(String propFile) {
         Properties prop = new Properties();
-        prop.load(new FileReader(propFile));
+        try {
+            prop.load(new FileReader(propFile));
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException("file " + propFile + " not found ", e);
+        } catch (IOException e) {
+            throw new RuntimeException("file " + propFile + " can't be read ", e);
+        }
         for(Entry<Object, Object> e: prop.entrySet()) {
             String key = e.getKey().toString();
             //If property is role.*, it maps the group name
