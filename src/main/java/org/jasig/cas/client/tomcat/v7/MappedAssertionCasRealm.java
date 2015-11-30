@@ -170,7 +170,7 @@ public class MappedAssertionCasRealm extends AssertionCasRealm {
     @Override
     public boolean hasUserDataPermission(Request arg0, Response arg1,
             SecurityConstraint[] arg2) throws IOException {
-        if( overrideSecurity || headerFilterMatches(arg0)) {
+        if( ! overrideSecurity || headerFilterMatches(arg0)) {
             return super.hasUserDataPermission(arg0, arg1, arg2);
         }
         return true;
