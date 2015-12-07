@@ -5,6 +5,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.security.Principal;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -52,7 +53,7 @@ public class MappedAssertionCasRealm extends AssertionCasRealm {
     // Map CAS group to one or many servlet role
     private final Map<String, Set<String>> roleMapping1 = new HashMap<>();
     // Map a servlet role to a CAS group
-    private final Map<String, String> roleMapping2 = new HashMap<>();
+    private final Map<String, Set<String>> roleMapping2 = new HashMap<>();
 
     //Map a CAS attribute to a session attribute
     private final Map<String, String> attributeMapping = new HashMap<>();
@@ -76,20 +77,23 @@ public class MappedAssertionCasRealm extends AssertionCasRealm {
             String key = e.getKey().toString();
             //If property is role.*, it maps the group name
             if(key.startsWith("role.")) {
-                String servletGroup = key.replaceFirst("^role\\.", "");
-                String casGroup = e.getValue().toString();
-                if(! roleMapping1.containsKey(casGroup)) {
-                    roleMapping1.put(casGroup, new HashSet<String>());
+                String servletRole = key.replaceFirst("^role\\.", "");
+                roleMapping2.put(servletRole, new HashSet<String>());
+                for(String casGroup: e.getValue().toString().split(" +; +")) {
+                    if(! roleMapping1.containsKey(casGroup)) {
+                        roleMapping1.put(casGroup, new HashSet<String>());
+                    }
+                    roleMapping1.get(casGroup).add(servletRole);
+                    roleMapping2.get(servletRole).add(casGroup);                    
+                    logger.trace("added mapping {} to {}", casGroup, servletRole);
                 }
-                roleMapping1.get(casGroup).add(servletGroup);
-                roleMapping2.put(servletGroup, casGroup);                
             } else if(key.startsWith("attribute.")) {
                 String sessionAttribute = key.replaceFirst("^attribute\\.", "");
                 String casAttribute = e.getValue().toString();
                 attributeMapping.put(casAttribute, sessionAttribute);
             }
         }
-        logger.trace("mapping is role={} attributes={}", roleMapping2, attributeMapping);
+        logger.trace("mapping is\n    role={}\n    attributes={}", roleMapping2, attributeMapping);
     }
 
     @Override
@@ -109,9 +113,13 @@ public class MappedAssertionCasRealm extends AssertionCasRealm {
     public boolean hasRole(Principal principal, String role) {    
         logger.trace("search if {} as role {}", principal, role);
         if(roleMapping2.containsKey(role)) {
-            role = roleMapping2.get(role);
+            for(String roleMapped: roleMapping2.get(role)) {
+                if(super.hasRole(principal, roleMapped)) {
+                    return true;
+                }
+            }
         }
-        return super.hasRole(principal, role);            
+        return false;            
     }
 
     @Override
@@ -144,13 +152,14 @@ public class MappedAssertionCasRealm extends AssertionCasRealm {
             HttpSession sess = arg0.getSession();
             if(sess != null) {
                 synchronized(sess) {
+                    logger.debug("looking for cas attributes in session {}, with attributes {}", sess.getId(), Collections.list(sess.getAttributeNames()));
                     // Only resolve mapping if Principal is a CAS generated principal
                     // It also uses the __CAS__ as a flag that mapping has already been done
                     // So it's not needed again.
                     // org.jasig.cas.client.validation.Assertion can't be used, it's still empty
                     if(p != null && p instanceof AttributePrincipal && sess.getAttribute("__CAS_ATTRIBUTES_DONE__") == null) {
                         AttributePrincipal ap = (AttributePrincipal) p;
-                        logger.debug("mapping attribute found: {}", ap.getAttributes());
+                        logger.trace("mapping attribute found: {}", ap.getAttributes());
                         for(Entry<String, Object> e: ap.getAttributes().entrySet()) {
                             String attribute = e.getKey();
                             // Only explicitely mapped attribute are kept
