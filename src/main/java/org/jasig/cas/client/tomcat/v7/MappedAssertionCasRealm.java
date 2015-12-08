@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpSession;
@@ -27,6 +28,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class MappedAssertionCasRealm extends AssertionCasRealm {
+
+    private static final Pattern splitter = Pattern.compile("\\s*;\\s*");
+    private static final Pattern extractor = Pattern.compile("^(role|attribute)\\.(.*+)$");
 
     private final class SecuritySetup {
         SecurityConstraint[] scs = null;
@@ -74,23 +78,28 @@ public class MappedAssertionCasRealm extends AssertionCasRealm {
             throw new RuntimeException("file " + propFile + " can't be read ", e);
         }
         for(Entry<Object, Object> e: prop.entrySet()) {
-            String key = e.getKey().toString();
-            //If property is role.*, it maps the group name
-            if(key.startsWith("role.")) {
-                String servletRole = key.replaceFirst("^role\\.", "");
+            Matcher extracted = extractor.matcher(e.getKey().toString());
+            if(! extracted.matches()) {
+                continue;
+            }
+            switch (extracted.group(1)) {
+            case "role":
+                String servletRole = extracted.group(2);
                 roleMapping2.put(servletRole, new HashSet<String>());
-                for(String casGroup: e.getValue().toString().split(" +; +")) {
+                for(String casGroup: splitter.split(e.getValue().toString())) {
                     if(! roleMapping1.containsKey(casGroup)) {
                         roleMapping1.put(casGroup, new HashSet<String>());
                     }
                     roleMapping1.get(casGroup).add(servletRole);
                     roleMapping2.get(servletRole).add(casGroup);                    
                     logger.trace("added mapping {} to {}", casGroup, servletRole);
+                    break;
                 }
-            } else if(key.startsWith("attribute.")) {
-                String sessionAttribute = key.replaceFirst("^attribute\\.", "");
+            case "attribute":
+                String sessionAttribute = extracted.group(2);
                 String casAttribute = e.getValue().toString();
                 attributeMapping.put(casAttribute, sessionAttribute);
+                break;
             }
         }
         logger.trace("mapping is\n    role={}\n    attributes={}", roleMapping2, attributeMapping);
