@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.regex.Pattern;
 
 import javax.servlet.ServletException;
+import javax.servlet.ServletInputStream;
 
 import org.apache.catalina.connector.Request;
 import org.apache.catalina.connector.Response;
@@ -19,14 +20,19 @@ public class CleanCas20CasAuthenticator extends ValveBase {
     @Override
     public void invoke(Request request, Response response)
             throws IOException, ServletException {
-        if(request.getParameter("ticket") != null) {
+        
+        // Totally useless but without, POST data are swallowed
+        @SuppressWarnings("unused")
+        ServletInputStream postDataStream = request.getInputStream();
+
+        if(request.getParameter("ticket") != null && "GET".equals(request.getMethod())) {
             String query = request.getQueryString();
             query = filter.matcher(query).replaceAll("");
             if(query.length() > 0) {
                 query = "?" + query;
             }
             logger.debug("send redirect to {}{}", request.getRequestURI(), query);
-            response.sendRedirect(request.getRequestURI() + query);
+            response.sendRedirect(response.encodeRedirectURL(request.getRequestURI() + query));
         } else {
             getNext().invoke(request, response);
         }
