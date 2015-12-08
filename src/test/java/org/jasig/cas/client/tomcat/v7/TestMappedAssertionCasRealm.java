@@ -1,11 +1,18 @@
 package org.jasig.cas.client.tomcat.v7;
 
+import java.beans.BeanInfo;
+import java.beans.IntrospectionException;
+import java.beans.Introspector;
+import java.beans.PropertyDescriptor;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import javax.naming.InvalidNameException;
 import javax.servlet.http.HttpSession;
@@ -79,7 +86,7 @@ public class TestMappedAssertionCasRealm {
     public void testSessionFill2() throws IOException, InvalidNameException {
         checkSession(false);
     }
-    
+
     private void checkSession(boolean override) throws FileNotFoundException, InvalidNameException, IOException {
 
         URL mappingprop = getClass().getClassLoader().getResource("mapping.properties");
@@ -102,6 +109,11 @@ public class TestMappedAssertionCasRealm {
                 return null;
             }           
         }).when(sess).setAttribute(Mockito.anyString(), Mockito.anyObject());
+        Mockito.doAnswer(new Answer<Object>() {
+            public Object answer(InvocationOnMock invocation) {
+                return Collections.enumeration(sessionAttributes.values());
+            }           
+        }).when(sess).getAttributeNames();
 
         AttributePrincipal ap = Mockito.mock(AttributePrincipal.class);
         Map<String, Object> attributes = Collections.singletonMap("displayName", (Object)"Joe Happy");
@@ -119,7 +131,24 @@ public class TestMappedAssertionCasRealm {
         Assert.assertTrue(hasResourcePermission);
         Assert.assertEquals(Boolean.TRUE, sessionAttributes.get("__CAS_ATTRIBUTES_DONE__"));
         Assert.assertEquals("Joe Happy", sessionAttributes.get("displayName"));
-        
+
+    }
+
+    @Test
+    public void checkBeans() throws IntrospectionException {
+
+        Set<String> beans = new HashSet<String>(Arrays.asList("roleAttributeName", "overrideSecurity", "headerFilter", "filter", "allRolesMode", "mappingProperties"));
+
+        BeanInfo info = Introspector.getBeanInfo(MappedAssertionCasRealm.class);
+        PropertyDescriptor[] pds = info.getPropertyDescriptors();
+        for(PropertyDescriptor i: pds) {
+            if(i.getWriteMethod() != null) {
+                beans.remove(i.getName());
+            }
+        }
+
+        Assert.assertEquals("missing beans:" + beans, 0, beans.size());
+
     }
 
 }
