@@ -130,7 +130,7 @@ public class TestMappedAssertionCasRealm {
 
         Assert.assertTrue(hasResourcePermission);
         Assert.assertEquals(Boolean.TRUE, sessionAttributes.get("__CAS_ATTRIBUTES_DONE__"));
-        Assert.assertEquals("Joe Happy", sessionAttributes.get("displayName"));
+        Assert.assertEquals("Joe Happy", sessionAttributes.get("name"));
 
     }
 
