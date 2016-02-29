@@ -45,7 +45,7 @@ public class MappedAssertionCasRealm extends AssertionCasRealm {
             scs[0].setAuthConstraint(true);
             scs[0].addAuthRole("*");
             for(String role: MappedAssertionCasRealm.this.roleMapping2.keySet()) {
-                ctx.addSecurityRole(role);                
+                ctx.addSecurityRole(role);
             }
         }
     }
@@ -91,7 +91,7 @@ public class MappedAssertionCasRealm extends AssertionCasRealm {
                         roleMapping1.put(casGroup, new HashSet<String>());
                     }
                     roleMapping1.get(casGroup).add(servletRole);
-                    roleMapping2.get(servletRole).add(casGroup);                    
+                    roleMapping2.get(servletRole).add(casGroup); 
                     logger.trace("added mapping {} to {}", casGroup, servletRole);
                     break;
                 }
@@ -119,7 +119,7 @@ public class MappedAssertionCasRealm extends AssertionCasRealm {
     }
 
     @Override
-    public boolean hasRole(Principal principal, String role) {    
+    public boolean hasRole(Principal principal, String role) {
         logger.trace("search if {} as role {}", principal, role);
         if(roleMapping2.containsKey(role)) {
             for(String roleMapped: roleMapping2.get(role)) {
@@ -128,7 +128,7 @@ public class MappedAssertionCasRealm extends AssertionCasRealm {
                 }
             }
         }
-        return false;            
+        return false;
     }
 
     @Override
@@ -141,9 +141,9 @@ public class MappedAssertionCasRealm extends AssertionCasRealm {
         synchronized(security) {
             if(security.scs == null) {
                 security.configure(arg1);
-            }       
+            }
         }
-        return security.scs;            
+        return security.scs;
     }
 
     @Override
@@ -178,9 +178,9 @@ public class MappedAssertionCasRealm extends AssertionCasRealm {
                             }
                         }
                         sess.setAttribute("__CAS_ATTRIBUTES_DONE__", Boolean.TRUE);
-                    }            
-                }            
-            }            
+                    }
+                }
+            }
         }
         return hasResourcePermission;
     }

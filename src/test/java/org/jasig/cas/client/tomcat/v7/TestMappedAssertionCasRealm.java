@@ -119,7 +119,7 @@ public class TestMappedAssertionCasRealm {
         Map<String, Object> attributes = Collections.singletonMap("displayName", (Object)"Joe Happy");
         Mockito.when(ap.getAttributes()).thenReturn(attributes);
 
-        Request req = Mockito.mock(Request.class);        
+        Request req = Mockito.mock(Request.class);
         Mockito.when(req.getPrincipal()).thenReturn(ap);
         Mockito.when(req.getContext()).thenReturn(c);
         Mockito.when(req.getSession()).thenReturn(sess);
