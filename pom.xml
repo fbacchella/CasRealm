@@ -15,7 +15,7 @@
         <buildSource>1.7</buildSource>
         <buildTarget>1.7</buildTarget>
         <casVersion>3.4.1</casVersion>
-        <tomcatVersion>7.0.65</tomcatVersion>
+        <tomcatVersion>7.0.70</tomcatVersion>
         <!-- current year. -->
         <year>2015</year>
     </properties>
@@ -23,7 +23,7 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
-            <version>1.7.13</version>
+            <version>1.7.21</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -62,7 +62,7 @@
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
-            <version>2.0.31-beta</version>
+            <version>2.0.111-beta</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -77,7 +77,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.2</version>
+                <version>3.3</version>
                 <configuration>
                     <source>${buildSource}</source>
                     <target>${buildTarget}</target>
@@ -91,7 +91,7 @@
             </plugin>
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
-                <version>2.5.4</version>
+                <version>2.6</version>
                 <configuration>
                     <descriptorRefs>
                         <descriptorRef>jar-with-dependencies</descriptorRef>
