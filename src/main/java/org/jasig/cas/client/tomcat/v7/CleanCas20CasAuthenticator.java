@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.regex.Pattern;
 
 import javax.servlet.ServletException;
-import javax.servlet.ServletInputStream;
 
 import org.apache.catalina.connector.Request;
 import org.apache.catalina.connector.Response;
@@ -20,12 +19,9 @@ public class CleanCas20CasAuthenticator extends ValveBase {
     @Override
     public void invoke(Request request, Response response)
             throws IOException, ServletException {
-        
-        // Totally useless but without, POST data are swallowed
-        @SuppressWarnings("unused")
-        ServletInputStream postDataStream = request.getInputStream();
 
-        if(request.getParameter("ticket") != null && "GET".equals(request.getMethod())) {
+        // GET must be checked first, because request.getParameter with POST query can make a mess of InputStream
+        if ("GET".equals(request.getMethod()) && request.getParameter("ticket") != null) {
             String query = request.getQueryString();
             query = filter.matcher(query).replaceAll("");
             if(query.length() > 0) {
