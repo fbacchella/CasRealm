@@ -14,7 +14,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <buildSource>1.7</buildSource>
         <buildTarget>1.7</buildTarget>
-        <casVersion>3.4.1</casVersion>
+        <!--  Don't upgrade, it brake the Jenkin's CAS plugin 2016-08-25-->
+        <casVersion>3.3.1</casVersion>
         <tomcatVersion>7.0.70</tomcatVersion>
         <!-- current year. -->
         <year>2015</year>
