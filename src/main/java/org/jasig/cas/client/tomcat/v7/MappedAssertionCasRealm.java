@@ -93,12 +93,13 @@ public class MappedAssertionCasRealm extends AssertionCasRealm {
                     roleMapping1.get(casGroup).add(servletRole);
                     roleMapping2.get(servletRole).add(casGroup); 
                     logger.trace("added mapping {} to {}", casGroup, servletRole);
-                    break;
                 }
+                break;
             case "attribute":
                 String sessionAttribute = extracted.group(2);
                 String casAttribute = e.getValue().toString();
                 attributeMapping.put(casAttribute, sessionAttribute);
+                logger.trace("added mapping attribute {} to {}", casAttribute, sessionAttribute);
                 break;
             }
         }
