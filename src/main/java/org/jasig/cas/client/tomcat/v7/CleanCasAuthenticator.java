@@ -11,14 +11,13 @@ import org.apache.catalina.valves.ValveBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class CleanCas20CasAuthenticator extends ValveBase {
+public class CleanCasAuthenticator extends ValveBase {
 
-    private final static Logger logger = LoggerFactory.getLogger(CleanCas20CasAuthenticator.class);
-    Pattern filter = java.util.regex.Pattern.compile("ticket=[A-Za-z0-9\\.-]+");
+    private static final Logger logger = LoggerFactory.getLogger(CleanCasAuthenticator.class);
+    private static final Pattern filter = Pattern.compile("ticket=[A-Za-z0-9\\.-]+");
 
     @Override
-    public void invoke(Request request, Response response)
-            throws IOException, ServletException {
+    public void invoke(Request request, Response response) throws IOException, ServletException {
 
         // GET must be checked first, because request.getParameter with POST query can make a mess of InputStream
         if ("GET".equals(request.getMethod()) && request.getParameter("ticket") != null) {
