@@ -1,7 +1,7 @@
 About the project
 -----------------
 
-Some applications don't expect to be protected by CAS, or manage there security themselves (like gitblit).
+Some applications don't expect to be protected by CAS, or manage their security themselves (like gitblit).
 Usual security realms expect the application to be already secured.
 
 This realm replace the application security with it's own, so every thing is protected. It can also use 
@@ -49,7 +49,7 @@ The file format is a list of either
     role.<rolename>=CAS group
     attribute.<application attribute>=CAS attribute
 
-Only mapped attributes and roles are set, to avoid unespected name collisions.
+Only mapped attributes and roles are set, to avoid unexpected name collisions.
 
 The `overrideSecurity` boolean setting can be set to `false` to only use mapping services of this realm, if
 the application is already CAS friendly.
@@ -62,6 +62,6 @@ using the application.
 
 Installation
 ------------
-It's a usual maven project so it's build with a `mvn package` command. It generate a `target/cas-client-tomcat-mandatoryrealm-v7-1.0-SNAPSHOT-jar-with-dependencies.jar`
-that must be installed in the lib folder installion (not in your webapp). Also don't install `cas-client-tomcat-mandatoryrealm-v7-1.0-SNAPSHOT.jar`,
+It's a usual maven project so it's build with a `mvn package` command. It generate a `target/cas-client-tomcat-mandatoryrealm-v7-1.1-SNAPSHOT-jar-with-dependencies.jar`
+that must be installed in the lib folder installion (not in your webapp). Also don't install `cas-client-tomcat-mandatoryrealm-v7-1.1-SNAPSHOT.jar`,
 as it don't include the dependencies.
