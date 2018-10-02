@@ -29,6 +29,8 @@ import org.slf4j.LoggerFactory;
 
 public class MappedAssertionCasRealm extends AssertionCasRealm {
 
+    private final static Logger logger = LoggerFactory.getLogger(MappedAssertionCasRealm.class);
+
     private static final Pattern splitter = Pattern.compile("\\s*;\\s*");
     private static final Pattern extractor = Pattern.compile("^(role|attribute)\\.(.*+)$");
 
@@ -49,8 +51,6 @@ public class MappedAssertionCasRealm extends AssertionCasRealm {
             }
         }
     }
-
-    private final static Logger logger = LoggerFactory.getLogger(MappedAssertionCasRealm.class);
 
     private final SecuritySetup security = new SecuritySetup();
 
@@ -79,7 +79,7 @@ public class MappedAssertionCasRealm extends AssertionCasRealm {
         }
         for(Entry<Object, Object> e: prop.entrySet()) {
             Matcher extracted = extractor.matcher(e.getKey().toString());
-            if(! extracted.matches()) {
+            if (! extracted.matches()) {
                 continue;
             }
             switch (extracted.group(1)) {
@@ -87,7 +87,7 @@ public class MappedAssertionCasRealm extends AssertionCasRealm {
                 String servletRole = extracted.group(2);
                 roleMapping2.put(servletRole, new HashSet<String>());
                 for(String casGroup: splitter.split(e.getValue().toString())) {
-                    if(! roleMapping1.containsKey(casGroup)) {
+                    if (! roleMapping1.containsKey(casGroup)) {
                         roleMapping1.put(casGroup, new HashSet<String>());
                     }
                     roleMapping1.get(casGroup).add(servletRole);
@@ -110,13 +110,13 @@ public class MappedAssertionCasRealm extends AssertionCasRealm {
     public String[] getRoles(Principal principal) {
         String[] casRoles = super.getRoles(principal);
         List<String> roleList = new ArrayList<>(casRoles.length);
-        for(String role: casRoles) {
-            if(roleMapping1.containsKey(role)) {
+        for (String role: casRoles) {
+            if (roleMapping1.containsKey(role)) {
                 roleList.addAll(roleMapping1.get(role));
             }
         }
         logger.trace("roles for {} are {}", principal, roleList);
-        return (String[]) roleList.toArray();
+        return (String[]) roleList.toArray(new String[roleList.size()]);
     }
 
     @Override
@@ -133,14 +133,14 @@ public class MappedAssertionCasRealm extends AssertionCasRealm {
     }
 
     @Override
-    public SecurityConstraint[] findSecurityConstraints(final Request arg0,
-            final Context arg1) {
-        if(!overrideSecurity || headerFilterMatches(arg0)) {
+    public SecurityConstraint[] findSecurityConstraints(Request arg0,
+                                                        Context arg1) {
+        if (!overrideSecurity || headerFilterMatches(arg0)) {
             return super.findSecurityConstraints(arg0, arg1);
         }
         //Default case, install security
         synchronized(security) {
-            if(security.scs == null) {
+            if (security.scs == null) {
                 security.configure(arg1);
             }
         }
@@ -149,9 +149,9 @@ public class MappedAssertionCasRealm extends AssertionCasRealm {
 
     @Override
     public boolean hasResourcePermission(Request arg0, Response arg1,
-            SecurityConstraint[] arg2, Context arg3) throws IOException {
+                                         SecurityConstraint[] arg2, Context arg3) throws IOException {
         boolean hasResourcePermission;
-        if( ! overrideSecurity || headerFilterMatches(arg0)) {
+        if (! overrideSecurity || headerFilterMatches(arg0)) {
             hasResourcePermission = super.hasResourcePermission(arg0, arg1, arg2, arg3);
         } else {
             hasResourcePermission = true;
@@ -160,7 +160,7 @@ public class MappedAssertionCasRealm extends AssertionCasRealm {
         if(hasResourcePermission) {
             Principal p = arg0.getPrincipal();
             HttpSession sess = arg0.getSession();
-            if(sess != null) {
+            if (sess != null) {
                 synchronized(sess) {
                     logger.debug("looking for cas attributes in session {}, with attributes {}", sess.getId(), Collections.list(sess.getAttributeNames()));
                     // Only resolve mapping if Principal is a CAS generated principal
@@ -188,8 +188,8 @@ public class MappedAssertionCasRealm extends AssertionCasRealm {
 
     @Override
     public boolean hasUserDataPermission(Request arg0, Response arg1,
-            SecurityConstraint[] arg2) throws IOException {
-        if( ! overrideSecurity || headerFilterMatches(arg0)) {
+                                         SecurityConstraint[] arg2) throws IOException {
+        if (! overrideSecurity || headerFilterMatches(arg0)) {
             return super.hasUserDataPermission(arg0, arg1, arg2);
         }
         return true;
@@ -201,9 +201,9 @@ public class MappedAssertionCasRealm extends AssertionCasRealm {
      * @return
      */
     private boolean headerFilterMatches(Request req) {
-        if(filter != null && headerFilter != null) {
+        if (filter != null && headerFilter != null) {
             String headerValue = req.getHeader(headerFilter);
-            if(headerValue != null) {
+            if (headerValue != null) {
                 return filter.matcher(headerValue).matches();
             }
         }
@@ -215,10 +215,11 @@ public class MappedAssertionCasRealm extends AssertionCasRealm {
     }
 
     public String getFilter() {
-        if(filter == null) {
+        if (filter == null) {
             return null;
+        } else {
+            return filter.pattern();
         }
-        return filter.pattern();
     }
 
     public void setFilter(String filter) {
