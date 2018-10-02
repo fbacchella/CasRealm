@@ -108,7 +108,7 @@ public class TestMappedAssertionCasRealm {
                 sessionAttributes.put(key, value);
                 return null;
             }           
-        }).when(sess).setAttribute(Mockito.anyString(), Mockito.anyObject());
+        }).when(sess).setAttribute(Mockito.anyString(), Mockito.any());
         Mockito.doAnswer(new Answer<Object>() {
             public Object answer(InvocationOnMock invocation) {
                 return Collections.enumeration(sessionAttributes.values());
