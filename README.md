@@ -10,7 +10,7 @@ It also also uses session to store CAS attribute that can be read by the applica
 
 Both roles and attributes can be mapped to good values, that will be used by the application.
 
-It extends `org.jasig.cas.client.tomcat.v6.PropertiesCasRealm`, but there is only a version for Tomcat 7
+It extends `org.jasig.cas.client.tomcat.v7.AssertionCasRealm`, but there is only a version for Tomcat 7
 as it needs servlet api 3.0, so no Tomcat 6 and PropertiesCasRealm don't support Tomcat 8.
 
 Configuration
