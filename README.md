@@ -4,19 +4,18 @@ About the project
 Some applications don't expect to be protected by CAS, or manage their security themselves (like gitblit).
 Usual security realms expect the application to be already secured.
 
-This realm replace the application security with it's own, so every thing is protected. It can also use 
-one of the CAS attribute find roles.
-It also also uses session to store CAS attribute that can be read by the application.
+This realm replace the application security with it's own, so every thing is protected. It can also use
+one of the CAS attribute to find roles.
+It also uses session to store CAS attributes that can be read by the application.
 
 Both roles and attributes can be mapped to good values, that will be used by the application.
 
-It extends `org.jasig.cas.client.tomcat.v7.AssertionCasRealm`, but there is only a version for Tomcat 7
-as it needs servlet api 3.0, so no Tomcat 6 and PropertiesCasRealm don't support Tomcat 8.
+It extends `org.jasig.cas.client.tomcat.v9.AssertionCasRealm`.
 
 Configuration
 -------------
 
-a example configuration is
+An example configuration is
 
     <?xml version="1.0" encoding="UTF-8"?>
     <Context privileged="true" antiResourceLocking="false"
@@ -27,12 +26,12 @@ a example configuration is
         The attribute used for role data is "memberOf".
       -->
       <Realm
-        className="org.jasig.cas.client.tomcat.v7.MappedAssertionCasRealm" 
+        className="org.jasig.cas.client.tomcat.v90.MappedAssertionCasRealm" 
         roleAttributeName="memberOf"
         rolesMappingProperties="${catalina.home}/conf/casRoles.properties"
         />
       <Valve
-        className="org.jasig.cas.client.tomcat.v7.Cas20CasAuthenticator"
+        className="org.jasig.cas.client.tomcat.v90.Cas20CasAuthenticator"
         encoding="UTF-8"
         casServerLoginUrl="https://casserver/login"
         casServerUrlPrefix="https://casserver/cas"
@@ -57,11 +56,11 @@ the application is already CAS friendly.
 With the options `filter` and `headerFilter`, it's possible to bypass the `overrideSecurity`. If the given
 header matches the regex given in `filter`, the permission is delegated to the default configuration. This
 must be used with care, because it can totally bypass security and should be only used when the application
-or other setting already enforce security. It allows dummy clients that can't' authenticate using CAS to keep
+or other setting already enforce security. It allows dummy clients that can’t authenticate using CAS to keep
 using the application.
 
 Installation
 ------------
 It's a usual maven project so it's build with a `mvn package` command. It generate a `target/cas-client-tomcat-mandatoryrealm-v7-1.1-SNAPSHOT-jar-with-dependencies.jar`
-that must be installed in the lib folder installion (not in your webapp). Also don't install `cas-client-tomcat-mandatoryrealm-v7-1.1-SNAPSHOT.jar`,
-as it don't include the dependencies.
+that must be installed in the lib folder installation (not in your webapp). Also don't install `cas-client-tomcat-mandatoryrealm-v7-1.1-SNAPSHOT.jar`,
+as it doesn’t include the dependencies.
