@@ -17,7 +17,13 @@
         <!-- Indirection needed to keep optionnal jacoco settings and external argument lines during tests-->
         <!-- to use, add -Darg.line=... instead of -DargLine=-->
         <arg.line></arg.line>
-     </properties>
+        <sonar.coverage.jacoco.xmlReportPaths>
+            ${project.basedir}/tomcat-v7/target/site/jacoco-aggregate/jacoco.xml,
+            ${project.basedir}/tomcat-v9/target/site/jacoco-aggregate/jacoco.xml,
+            ${project.basedir}/../tomcat-v7/target/site/jacoco-aggregate/jacoco.xml,
+            ${project.basedir}/../tomcat-v9/target/site/jacoco-aggregate/jacoco.xml
+        </sonar.coverage.jacoco.xmlReportPaths>
+    </properties>
 
     <modules>
         <module>common</module>
@@ -169,6 +175,7 @@
                         <executions>
                             <execution>
                                 <id>prepare-agent</id>
+                                <phase>initialize</phase>
                                 <goals>
                                     <goal>prepare-agent</goal>
                                 </goals>
@@ -176,8 +183,9 @@
                             <execution>
                                 <id>report</id>
                                 <goals>
-                                    <goal>report</goal>
+                                    <goal>report-aggregate</goal>
                                 </goals>
+                                <phase>verify</phase>
                             </execution>
                         </executions>
                     </plugin>
