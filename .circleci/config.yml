@@ -40,7 +40,7 @@ jobs:
                 root: /
                 paths:
                     - home/circleci/.m2/repository
-                    - home/circleci/project/target
+                    - home/circleci/project
     testsj17:
         docker:
             - image: circleci/openjdk:17-jdk-buster
