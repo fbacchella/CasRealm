@@ -212,8 +212,8 @@ public class SecurityInjector<SC, CT, RQ extends HttpServletRequest, RS extends 
 
     /**
      * Check if the filter header match the given regex pattern
-     * @param req
-     * @return
+     * @param req the request
+     * @return true if it matches the header filtering
      */
     public boolean headerFilterMatches(RQ req) {
         if (filter != null && headerFilter != null) {

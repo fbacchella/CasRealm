@@ -16,7 +16,6 @@ import java.util.stream.Collectors;
 import javax.servlet.http.HttpSession;
 
 import org.apache.catalina.Context;
-import org.apache.catalina.LifecycleException;
 import org.apache.catalina.connector.Request;
 import org.apache.catalina.connector.Response;
 import org.apache.catalina.deploy.SecurityConstraint;
@@ -51,7 +50,7 @@ public class TestMappedAssertionCasRealm {
     }
 
     @Test
-    public void doNotBypassSecurityUA() throws LifecycleException {
+    public void doNotBypassSecurityUA() {
         MappedAssertionCasRealm realm = new MappedAssertionCasRealm();
 
         realm.setOverrideSecurity(true);
@@ -63,12 +62,12 @@ public class TestMappedAssertionCasRealm {
         Mockito.when(r.getMethod()).thenReturn("GET");
         Context c = Mockito.mock(Context.class);
 
-        SecurityConstraint[] scs = (SecurityConstraint[]) realm.findSecurityConstraints(r, c);
+        SecurityConstraint[] scs = realm.findSecurityConstraints(r, c);
         Assert.assertNotNull(scs);
     }
 
     @Test
-    public void doNotBypassSecurityURI() throws LifecycleException {
+    public void doNotBypassSecurityURI() {
         MappedAssertionCasRealm realm = new MappedAssertionCasRealm();
         realm.setOverrideSecurity(true);
         realm.setAccesslist("-/skip;+/test");
@@ -78,7 +77,7 @@ public class TestMappedAssertionCasRealm {
         Mockito.when(r.getMethod()).thenReturn("GET");
         Context c = Mockito.mock(Context.class);
 
-        SecurityConstraint[] scs = (SecurityConstraint[]) realm.findSecurityConstraints(r, c);
+        SecurityConstraint[] scs = realm.findSecurityConstraints(r, c);
         Assert.assertNotNull(scs);
     }
 
@@ -93,7 +92,7 @@ public class TestMappedAssertionCasRealm {
         Mockito.when(r.getMethod()).thenReturn("GET");
         Context c = Mockito.mock(Context.class);
 
-        SecurityConstraint[] scs = (SecurityConstraint[]) realm.findSecurityConstraints(r, c);
+        SecurityConstraint[] scs = realm.findSecurityConstraints(r, c);
         Assert.assertNull(scs);
     }
 

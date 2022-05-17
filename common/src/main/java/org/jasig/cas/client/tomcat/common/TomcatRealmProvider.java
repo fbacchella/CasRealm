@@ -19,8 +19,6 @@ public interface TomcatRealmProvider<SC, CT, RQ extends HttpServletRequest, RS e
 
     SC[] superFindSecurityConstraints(RQ request, CT ctx);
 
-    boolean hasRole(Principal principal, String role);
-
     String[] getRoles(Principal principal);
 
     SC[] newSecurityContext(int i);
