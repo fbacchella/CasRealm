@@ -55,19 +55,38 @@
                 <artifactId>maven-resources-plugin</artifactId>
             </plugin>
             <plugin>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <configuration>
-                    <descriptorRefs>
-                        <descriptorRef>jar-with-dependencies</descriptorRef>
-                    </descriptorRefs>
-                </configuration>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>make-assembly</id>
                         <phase>package</phase>
                         <goals>
-                            <goal>single</goal>
+                            <goal>shade</goal>
                         </goals>
+                        <configuration>
+                            <minimizeJar>false</minimizeJar>
+                            <transformers>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer" />
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
+                            </transformers>
+                            <artifactSet>
+                                <excludes>
+                                    <exclude>org.slf4j:slf4j-api</exclude>
+                                    <exclude>org.bouncycastle:bcpkix-jdk15on</exclude>
+                                    <exclude>org.bouncycastle:bcprov-jdk15on</exclude>
+                                    <exclude>org.bouncycastle:bcutil-jdk15on</exclude>
+                                </excludes>
+                                <includes>
+                                    <include>org.jasig.cas.client:cas-client-support-saml</include>
+                                    <include>org.jasig.cas.client:cas-client-integration-tomcat-common</include>
+                                    <include>fr.jrds:cas-client-tomcat-mandatoryrealm-common</include>
+                                    <include>org.jasig.cas.client:cas-client-integration-tomcat-v90</include>
+                                    <include>commons-codec:commons-codec</include>
+                                    <include>org.jasig.cas.client:cas-client-core</include>
+                                    <include>joda-time:joda-time</include>
+                                </includes>
+                            </artifactSet>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
