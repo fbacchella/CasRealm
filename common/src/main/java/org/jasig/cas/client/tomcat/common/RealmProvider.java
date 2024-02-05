@@ -6,7 +6,7 @@ import java.security.Principal;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-public interface TomcatRealmProvider<SC, CT, RQ extends HttpServletRequest, RS extends HttpServletResponse> {
+public interface RealmProvider<SC, CT, RQ extends HttpServletRequest, RS extends HttpServletResponse> {
     SC[] findSecurityConstraints(RQ request, CT ctx);
 
     boolean superHasResourcePermission(RQ request, RS response, SC[] constraints, CT context)

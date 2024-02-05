@@ -78,9 +78,9 @@ public class SecurityInjector<SC, CT, RQ extends HttpServletRequest, RS extends 
     private boolean overrideSecurity = true;
 
     private final Logger logger;
-    private final TomcatRealmProvider<SC, CT, RQ, RS> casrealm;
+    private final RealmProvider<SC, CT, RQ, RS> casrealm;
 
-    public SecurityInjector(Logger logger, TomcatRealmProvider<SC, CT, RQ, RS> casrealm) {
+    public SecurityInjector(Logger logger, RealmProvider<SC, CT, RQ, RS> casrealm) {
         this.logger = logger;
         this.casrealm = casrealm;
         setAccesslist("+/*");

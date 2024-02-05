@@ -9,12 +9,12 @@ import org.apache.catalina.connector.Response;
 import org.apache.catalina.deploy.SecurityCollection;
 import org.apache.catalina.deploy.SecurityConstraint;
 import org.jasig.cas.client.tomcat.common.SecurityInjector;
-import org.jasig.cas.client.tomcat.common.TomcatRealmProvider;
+import org.jasig.cas.client.tomcat.common.RealmProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class MappedAssertionCasRealm extends AssertionCasRealm implements
-        TomcatRealmProvider<SecurityConstraint, Context, Request, Response> {
+        RealmProvider<SecurityConstraint, Context, Request, Response> {
 
     private static final Logger logger = LoggerFactory.getLogger(MappedAssertionCasRealm.class);
 
