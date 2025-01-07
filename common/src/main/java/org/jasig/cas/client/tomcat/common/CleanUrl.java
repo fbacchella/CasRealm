@@ -20,7 +20,7 @@ public class CleanUrl {
     public boolean invoke(HttpServletRequest request, HttpServletResponse response) throws IOException {
         if (doRequest(request.getMethod(), request.getParameterMap())) {
             String query = filter.matcher(request.getQueryString()).replaceAll("");
-            if(query.length() > 0) {
+            if(query.isEmpty()) {
                 query = "?" + query;
             }
             response.sendRedirect(response.encodeRedirectURL(request.getRequestURI() + query));

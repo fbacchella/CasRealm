@@ -135,7 +135,7 @@ public class SecurityInjector<SC, CT, RQ extends HttpServletRequest, RS extends 
             }
         }
         logger.debug("roles for {} are {}", principal, roleList);
-        return roleList.stream().toArray(String[]::new);
+        return roleList.toArray(String[]::new);
     }
 
     public boolean hasRole(Principal principal, String role) {
@@ -194,8 +194,7 @@ public class SecurityInjector<SC, CT, RQ extends HttpServletRequest, RS extends 
                 // It also uses the __CAS__ as a flag that mapping has already been done
                 // So it's not needed again.
                 // org.jasig.cas.client.validation.Assertion can't be used, it's still empty
-                if (p instanceof AttributePrincipal && sess.getAttribute("__CAS_ATTRIBUTES_DONE__") == null) {
-                    AttributePrincipal ap = (AttributePrincipal) p;
+                if (p instanceof AttributePrincipal ap && sess.getAttribute("__CAS_ATTRIBUTES_DONE__") == null) {
                     for (Map.Entry<String, Object> e: ap.getAttributes().entrySet()) {
                         String attribute = e.getKey();
                         // Only explicitely mapped attribute are kept
