@@ -2,7 +2,7 @@ version: 2.1
 jobs:
     checkout:
         docker:
-            - image: cimg/openjdk:17.0
+            - image: cimg/openjdk:23.0
         steps:
             - checkout
             - restore_cache:
@@ -10,7 +10,7 @@ jobs:
             - run: mkdir -p /home/circleci/.sonar/cache /home/circleci/.m2/repository
             - run:
                 # A bug in dependency:go-offline, see https://issues.apache.org/jira/browse/MDEP-688
-                command: "mvn -B dependency:resolve dependency:resolve-plugins sonar:help jacoco:help -Psonar,versions -s .circleci/settings.xml || true"
+                command: "mvn -B dependency:resolve dependency:resolve-plugins sonar:help jacoco:help gpg:help -Psonar,versions -fn"
                 environment:
                     MAVEN_OPTS: "-Xmx1024m"
             - persist_to_workspace:
@@ -21,7 +21,7 @@ jobs:
                     - home/circleci/project
     build:
         docker:
-            - image: cimg/openjdk:17.0
+            - image: cimg/openjdk:23.0
         steps:
             - attach_workspace:
                 at: /tmp/ws
@@ -39,9 +39,9 @@ jobs:
                 paths:
                     - home/circleci/.m2/repository
                     - home/circleci/project
-    testsj17:
+    testsj23:
         docker:
-            - image: cimg/openjdk:17.0
+            - image: cimg/openjdk:23.0
         steps:
             - attach_workspace:
                 at: /tmp/ws
@@ -54,13 +54,13 @@ jobs:
                 command: |
                     # If no symbolic name, it's a PR, will run sonar
                     if [ -n "$(git symbolic-ref HEAD 2>/dev/null )" ] ; then
-                        SONAR="sonar:sonar -Psonar"
+                        SONAR="jacoco:report sonar:sonar -Psonar -Dsonar.projectKey=$SONARCLOUD_PROJECTKEY"
                         echo "Doing sonar"
                     else
                         SONAR=""
                     fi
                     mkdir -p /tmp/$CIRCLE_JOB
-                    mvn -B test $SONAR -Pskip -Darg.line="-Xmx2048m -Djava.io.tmpdir=/tmp/$CIRCLE_JOB" -s .circleci/settings.xml
+                    mvn -B verify $SONAR -Pskip -Darg.line="-Xmx2048m -Djava.io.tmpdir=/tmp/$CIRCLE_JOB" -s .circleci/settings.xml
                 environment:
                     MAVEN_OPTS: "-Xmx1024m"
             - store_test_results:
@@ -70,9 +70,9 @@ jobs:
                 paths:
                     - home/circleci/.m2/repository
                     - home/circleci/.sonar/cache
-    testsj11:
+    testsj21:
         docker:
-            - image: cimg/openjdk:11.0
+            - image: cimg/openjdk:21.0
         steps:
             - attach_workspace:
                 at: /tmp/ws
@@ -85,15 +85,15 @@ jobs:
             - run:
                 command: |
                     mkdir -p /tmp/$CIRCLE_JOB
-                    mvn -B test -Pskip -Darg.line="-Xmx2048m -Djava.io.tmpdir=/tmp/$CIRCLE_JOB" -s .circleci/settings.xml
+                    mvn -B verify -Pskip -Darg.line="-Xmx2048m -Djava.io.tmpdir=/tmp/$CIRCLE_JOB" -s .circleci/settings.xml
                 environment:
                     MAVEN_OPTS: "-Xmx512m"
             - store_test_results:
                 path: target/surefire-reports
             #don't persist_to_workspace, can't be done in parallel with testsj14
-    testsj8:
+    testsj17:
         docker:
-            - image: cimg/openjdk:8.0
+            - image: cimg/openjdk:17.0
         steps:
             - attach_workspace:
                   at: /tmp/ws
@@ -106,7 +106,7 @@ jobs:
             - run:
                   command: |
                       mkdir -p /tmp/$CIRCLE_JOB
-                      mvn -B test -Pskip -Darg.line="-Xmx2048m -Djava.io.tmpdir=/tmp/$CIRCLE_JOB" -s .circleci/settings.xml
+                      mvn -B verify -Pskip -Darg.line="-Xmx2048m -Djava.io.tmpdir=/tmp/$CIRCLE_JOB" -s .circleci/settings.xml
                   environment:
                       MAVEN_OPTS: "-Xmx512m"
             - store_test_results:
@@ -114,7 +114,7 @@ jobs:
             #don't persist_to_workspace, can't be done in parallel with testsj14
     publish:
         docker:
-            - image: cimg/openjdk:17.0
+            - image: cimg/openjdk:23.0
         steps:
             - attach_workspace:
                 at: /tmp/ws
@@ -133,7 +133,7 @@ jobs:
                         PUBLISH="install"
                     fi
                     echo "publishing jobs: $PUBLISH"
-                    mvn -B $PUBLISH -Pskip -Dmaven.test.skip=true -s .circleci/settings.xml
+                    mvn -B $PUBLISH -Pskip $GPGSIGN -DskipTests -Dmaven.javadoc.skip=false -s .circleci/settings.xml
                 environment:
                     MAVEN_OPTS: "-Dorg.slf4j.simpleLogger.log.org.apache.maven.plugins.shade=ERROR -Xmx2048m"
             - store_artifacts:
@@ -167,21 +167,21 @@ workflows:
       - build:
           requires:
               - checkout
-      - testsj8:
+      - testsj17:
             requires:
                 - build
-      - testsj11:
+      - testsj21:
           requires:
               - build
-      - testsj17:
+      - testsj23:
           requires:
               - build
           context: "Security variables"
       - publish:
           requires:
-              - testsj8
-              - testsj11
               - testsj17
+              - testsj21
+              - testsj23
           context: "Security variables"
       - savecache:
           requires:
