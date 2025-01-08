@@ -9,7 +9,7 @@ import javax.servlet.http.HttpServletResponse;
 
 public class CleanUrl {
 
-    private static final Pattern filter = Pattern.compile("(ticket|SAMLart)=[A-Za-z0-9\\.-]+");
+    private static final Pattern filter = Pattern.compile("(ticket|SAMLart)=[%A-Za-z0-9.-]+");
 
     private boolean doRequest(String method, Map<String, String[]> params) {
         // GET must be checked first, because request.getParameter with POST query can make a mess of InputStream
@@ -20,8 +20,11 @@ public class CleanUrl {
     public boolean invoke(HttpServletRequest request, HttpServletResponse response) throws IOException {
         if (doRequest(request.getMethod(), request.getParameterMap())) {
             String query = filter.matcher(request.getQueryString()).replaceAll("");
-            if(query.isEmpty()) {
+            if (! query.isEmpty()) {
                 query = "?" + query;
+                if (query.endsWith("&")) {
+                    query = query.substring(0, query.length() - 1);
+                }
             }
             response.sendRedirect(response.encodeRedirectURL(request.getRequestURI() + query));
             return true;
