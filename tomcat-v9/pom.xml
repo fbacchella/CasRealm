@@ -11,7 +11,7 @@
      <packaging>jar</packaging>
      <name>CASRealm-tomcat 9</name>
      <properties>
-         <tomcatVersion>9.0.98</tomcatVersion>
+         <tomcatVersion>9.0.105</tomcatVersion>
     </properties>
     <dependencies>
         <dependency>
